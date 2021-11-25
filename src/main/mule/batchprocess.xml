@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a3c7b36a-f630-4af1-bc00-e2abaf916e91" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="5cd08d43-39d8-48a7-a1e1-097c9d610770" >
+		<salesforce:basic-connection username="thanu.akki@gmail.com" password="akshaya123$" securityToken="pc3eQ8ZiyNUW3y377cZ8Ru6G" />
+	</salesforce:sfdc-config>
+	<flow name="batchprocessFlow" doc:id="955bf8ad-5eeb-4a8c-b12b-46ff1734425a" >
+		<http:listener doc:name="Listener" doc:id="82304bc3-179a-4f4e-b243-9b4bb91e63d3" config-ref="HTTP_Listener_config" path="/batchprocess"/>
+		<set-payload value="#[[1,2,3,4,3,5,5,5,7,8,1,5,53,1,5,45,48,575,55,]]" doc:name="1,2,3,4,3,5," doc:id="53044321-27fd-4b50-8ca8-f42c8d9b6346" />
+		<batch:job jobName="batchprocessBatch_Job" doc:id="449bd76a-9a37-4dfc-9d60-f212f7c9d57e" >
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="81166955-4b83-4bc9-b605-6c015321ffbf" >
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="7f24053f-e18c-4301-80bb-1270899a8e89" size="5">
+						<logger level="INFO" doc:name="Logger" doc:id="184313a6-e9d5-406c-9f77-9a5158133e54" message="#[payload]"/>
+					</batch:aggregator>
+					<set-payload value="#[payload*100]" doc:name="Set Payload" doc:id="f2ece70a-8954-4f89-9cb3-e4f273c331b7" />
+				</batch:step>
+				<batch:step name="Batch_Step1" doc:id="ccda85e0-18e3-43fd-9970-092ca40772f6" >
+					<salesforce:create-batch doc:name="Create batch" doc:id="08940dd4-dd34-41f1-a811-052ccb40eafe" config-ref="Salesforce_Config" jobInfoBatch="#[payload]"/>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="8e5e4c2d-9a60-474d-9db1-57aeca3f6603" size="3">
+						<logger level="INFO" doc:name="Logger" doc:id="7c9888a3-7ed0-4f27-bfe1-6f7c16428ada" message="#[payload]"/>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+		</batch:job>
+	</flow>
+</mule>
